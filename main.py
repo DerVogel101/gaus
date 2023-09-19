@@ -1,89 +1,84 @@
-from pprint import pprint
 from copy import deepcopy
 
 
-matrix = [[2, 3, 1, 1],
-          [4, -1, 3, 11],
-          [3, 1, -1, 0]]
+class Gauss:
+    class SolveError(Exception):
+        pass
 
-for a, i0 in enumerate(matrix):
-    for b, i1 in enumerate(i0):
-        matrix[a][b] = float(i1)
+    class MatrixError(Exception):
+        pass
 
-matrix_len = len(matrix)
+    def __init__(self, matrix):
+        self.__matrix = matrix
+        self.__matrix = self.__matrix_convert_float()
+        self.__matrix_len = len(self.__matrix)
 
-for top_index, matrix_line in enumerate(matrix):
-    for edit_index, edit_line in enumerate(matrix):
-        if not edit_index == top_index:
-            temp = deepcopy(matrix[edit_index][top_index] / matrix[top_index][top_index])
-            for lpos, lpos_val in enumerate(edit_line):
-                matrix[edit_index][lpos] -= temp * matrix[top_index][lpos]
+        self.__validate_matrix()
 
-for index in range(matrix_len):
-    temp_div = deepcopy(matrix[index][index])
-    for col_index in range(matrix_len + 1):
-        matrix[index][col_index] /= temp_div
+        variables = {0: "x", 1: "y", 2: "z"}
+        if self.__matrix_len <= 3:
+            pass
+        elif self.__matrix_len <= 26:
+            for i in range(self.__matrix_len - 3):
+                variables[i + 3] = chr(i + 97)
+        else:
+            raise Gauss.MatrixError("Matrix zu groß")
+        self.__variables = variables
 
-if matrix_len <= 3:
-    ords = [120, 121, 122]
-else:
-    ...
+    def __matrix_convert_float(self):
+        for a, i0 in enumerate(self.__matrix):
+            for b, i1 in enumerate(i0):
+                self.__matrix[a][b] = float(i1)
+        return deepcopy(self.__matrix)
+
+    def __validate_matrix(self):
+        for line in self.__matrix:
+            if len(line) != self.__matrix_len + 1:
+                raise Gauss.MatrixError("Matrix nicht gültig")
+
+    def gauss_solve(self):
+        try:
+            for top_index, matrix_line in enumerate(self.__matrix):
+                for edit_index, edit_line in enumerate(self.__matrix):
+                    if not edit_index == top_index:
+                        temp = deepcopy(self.__matrix[edit_index][top_index] / self.__matrix[top_index][top_index])
+                        for lpos, lpos_val in enumerate(edit_line):
+                            self.__matrix[edit_index][lpos] -= temp * self.__matrix[top_index][lpos]
+        except ZeroDivisionError:
+            raise Gauss.SolveError("Matrix nicht lösbar")
+        return deepcopy(self.__matrix)
+
+    def gauss_solve_result(self):
+        for index in range(self.__matrix_len):
+            temp_div = deepcopy(self.__matrix[index][index])
+            for col_index in range(self.__matrix_len + 1):
+                self.__matrix[index][col_index] /= temp_div
+        return deepcopy(self.__matrix)
+
+    def print_result(self):
+        print("Lösung:")
+        for index, line in enumerate(self.__matrix):
+            print(f"{self.__variables[index]} = {line[-1]}")
+
+    def get_result(self):
+        result = {}
+        for index, line in enumerate(self.__matrix):
+            result[self.__variables[index]] = line[-1]
+        return result
 
 
-# temp = deepcopy(matrix[1][0] / matrix[0][0])
-# matrix[1][0] -= temp * matrix[0][0]
-# matrix[1][1] -= temp * matrix[0][1]
-# matrix[1][2] -= temp * matrix[0][2]
-# matrix[1][3] -= temp * matrix[0][3]
-#
-# temp = deepcopy(matrix[2][0] / matrix[0][0])
-# matrix[2][0] -= temp * matrix[0][0]
-# matrix[2][1] -= temp * matrix[0][1]
-# matrix[2][2] -= temp * matrix[0][2]
-# matrix[2][3] -= temp * matrix[0][3]
-#
-#
-# temp = deepcopy(matrix[0][1] / matrix[1][1])
-# matrix[0][0] -= temp * matrix[1][0]
-# matrix[0][1] -= temp * matrix[1][1]
-# matrix[0][2] -= temp * matrix[1][2]
-# matrix[0][3] -= temp * matrix[1][3]
-#
-# temp = deepcopy(matrix[2][1] / matrix[1][1])
-# matrix[2][0] -= temp * matrix[1][0]
-# matrix[2][1] -= temp * matrix[1][1]
-# matrix[2][2] -= temp * matrix[1][2]
-# matrix[2][3] -= temp * matrix[1][3]
-#
-#
-# temp = deepcopy((matrix[0][2] / matrix[2][2]))
-# matrix[0][0] -= temp * matrix[2][0]
-# matrix[0][1] -= temp * matrix[2][1]
-# matrix[0][2] -= temp * matrix[2][2]
-# matrix[0][3] -= temp * matrix[2][3]
-#
-# temp = deepcopy(matrix[1][2] / matrix[2][2])
-# matrix[1][0] -= temp * matrix[2][0]
-# matrix[1][1] -= temp * matrix[2][1]
-# matrix[1][2] -= temp * matrix[2][2]
-# matrix[1][3] -= temp * matrix[2][3]
-#
-# pprint(matrix)
-#
-# temp = deepcopy(matrix[0][0])
-# matrix[0][0] = matrix[0][0] / temp
-# matrix[0][3] = matrix[0][3] / temp
-#
-# temp = deepcopy(matrix[1][1])
-# matrix[1][1] = matrix[1][1] / temp
-# matrix[1][3] = matrix[1][3] / temp
-#
-# temp = deepcopy(matrix[2][2])
-# matrix[2][2] = matrix[2][2] / temp
-# matrix[2][3] = matrix[2][3] / temp
-
-pprint(matrix)
-
-# x, y, z = matrix[0][3], matrix[1][3], matrix[2][3]
-#
-# print(f"x= {x}\ny= {y}\nz= {z}")
+if __name__ == '__main__':
+    beispiele = {1: [[2, 3, 1, 1],
+                     [4, -1, 3, 11],
+                     [3, 1, -1, 0]],
+                 2: [[2, 3, 0, 1, 1],
+                     [4, -1, 0, 1, 1],
+                     [2, 2, 1, -1, -1],
+                     [1, 3, 2, 2, 0]]
+                 }
+    matrix = beispiele[1]
+    gauss = Gauss(matrix)
+    gauss.gauss_solve()
+    gauss.gauss_solve_result()
+    print(gauss.get_result())
+    gauss.print_result()
