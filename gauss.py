@@ -39,6 +39,16 @@ class Gauss:
     def gauss_solve(self):
         try:
             for top_index, matrix_line in enumerate(self.__matrix):
+                # Check if pivot element is zero
+                if self.__matrix[top_index][top_index] == 0:
+                    # Find a line to swap
+                    for swap_index in range(top_index + 1, len(self.__matrix)):
+                        if self.__matrix[swap_index][top_index] != 0:
+                            # Swap lines
+                            self.move_line(swap_index, top_index)
+                            break
+                    else:
+                        raise Gauss.SolveError("Matrix nicht lösbar")
                 for edit_index, edit_line in enumerate(self.__matrix):
                     if not edit_index == top_index:
                         temp = deepcopy(self.__matrix[edit_index][top_index] / self.__matrix[top_index][top_index])
@@ -47,6 +57,9 @@ class Gauss:
         except ZeroDivisionError:
             raise Gauss.SolveError("Matrix nicht lösbar")
         return deepcopy(self.__matrix)
+
+    def move_line(self, line, target) -> None:
+        self.__matrix.insert(target, self.__matrix.pop(line))
 
     def gauss_solve_result(self):
         for index in range(self.__matrix_len):
@@ -71,12 +84,27 @@ if __name__ == '__main__':
     beispiele = {1: [[2, 3, 1, 1],
                      [4, -1, 3, 11],
                      [3, 1, -1, 0]],
+
                  2: [[2, 3, 0, 1, 1],
                      [4, -1, 0, 1, 1],
                      [2, 2, 1, -1, -1],
-                     [1, 3, 2, 2, 0]]
+                     [1, 3, 2, 2, 0]],
+
+                 3: [[1, -1, 1, 0],
+                     [0.25, 0.5, 1, -2.25],
+                     [1, 1, 0, 0]],
+
+                 4: [[0, 0, 0, 1, 1],
+                     [1, 1, 1, 1, 2],
+                     [0, 2, 0, 0, 0],
+                     [3, 2, 1, 0, 0]],
+
+                 5: [[8, 4, 2, 1, 4],
+                     [64, 16, 4, 1, 2],
+                     [12, 4, 1, 0, 0],
+                     [48, 8, 1, 0, 0]]
                  }
-    matrix = beispiele[1]
+    matrix = beispiele[5]
     gauss = Gauss(matrix)
     gauss.gauss_solve()
     gauss.gauss_solve_result()

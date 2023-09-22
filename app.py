@@ -1,6 +1,7 @@
 from gauss import Gauss
 import flet as ft
 
+
 def main_config(page: ft.Page):
     def submit_click(e):
         global fields
