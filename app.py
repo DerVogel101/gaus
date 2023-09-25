@@ -1,4 +1,5 @@
 from gauss import Gauss
+from gauss import list_to_matrix
 import flet as ft
 from flet import AppView
 
@@ -7,8 +8,9 @@ def main(page: ft.Page):
     global default_color
     default_color = ft.colors.PRIMARY
     fields = 3
+    entry_elements = []
 
-    def conf_submit_click(e):
+    def conf_submit_click(*args, **kwargs):
         """
         Deletes elements from the configuration Phase and adds the Elements for the input Phase
         """
@@ -26,16 +28,24 @@ def main(page: ft.Page):
             page.add(input_elements[input_elements_keys[i]])
 
         for i in range(fields):
-            page.add(eval(dynamic_elements["entry"]))
+            entry_elements.append(eval(dynamic_elements["entry"]))
+            page.add(entry_elements[i])
 
         for i in range(2, 4):
             page.add(input_elements[input_elements_keys[i]])
 
     def input_clear_click(e):
-        ...
+        for element in entry_elements:
+            element.value = ""
+            page.update(element)
 
     def input_submit_click(e):
-        ...
+        str_matrix = []
+        for element in entry_elements:
+            str_matrix.append(element.value)
+        matrix = list_to_matrix(str_matrix)
+        print(matrix)
+
 
     configuration_elements = {"title": ft.Text("Gleichungssystem Konfiguration", size=24),
                               "instructions": ft.Text("Geben Sie die Anzahl der Variablen ein:", size=16),
