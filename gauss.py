@@ -1,4 +1,5 @@
 from copy import deepcopy
+import re
 
 
 class Gauss:
@@ -80,6 +81,20 @@ class Gauss:
         return result
 
 
+def list_to_matrix(matrix_list: list[str]) -> list[list[float]]:
+    output_matrix = []
+    matrix_str_list = deepcopy(matrix_list)
+    for line in matrix_str_list:
+        line = line.split("=")
+        multiplier = re.findall(r'([+-]?\d+\.?\d*)x', line[0])
+        multiplier = [float(m) for m in multiplier]
+        solution = float(line[1])
+
+        output_matrix.append(multiplier + [solution])
+
+    return output_matrix
+
+
 if __name__ == '__main__':
     beispiele = {1: [[2, 3, 1, 1],
                      [4, -1, 3, 11],
@@ -102,9 +117,13 @@ if __name__ == '__main__':
                  5: [[8, 4, 2, 1, 4],
                      [64, 16, 4, 1, 2],
                      [12, 4, 1, 0, 0],
-                     [48, 8, 1, 0, 0]]
+                     [48, 8, 1, 0, 0]],
+                 6: [[1.0, 1.0, 1.0, 1.0, 1.0],
+                     [-1.0, 1.0, -1.0, 1.0, -1.0],
+                     [3.0, -2.0, 1.0, 0.0, 0.0],
+                     [3.0, 2.0, 1.0, -0.0, 0.0]]
                  }
-    matrix = beispiele[5]
+    matrix = beispiele[6]
     gauss = Gauss(matrix)
     gauss.gauss_solve()
     gauss.gauss_solve_result()
