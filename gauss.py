@@ -6,7 +6,10 @@ class Gauss:
     class SolveError(Exception):
         pass
 
-    class MatrixError(Exception):
+    class SizeError(Exception):
+        pass
+
+    class FormatError(Exception):
         pass
 
     def __init__(self, matrix):
@@ -23,7 +26,7 @@ class Gauss:
             for i in range(self.__matrix_len - 3):
                 variables[i + 3] = chr(i + 97)
         else:
-            raise Gauss.MatrixError("Matrix zu groß")
+            raise Gauss.SizeError("Matrix zu groß")
         self.__variables = variables
 
     def __matrix_convert_float(self):
@@ -35,7 +38,7 @@ class Gauss:
     def __validate_matrix(self):
         for line in self.__matrix:
             if len(line) != self.__matrix_len + 1:
-                raise Gauss.MatrixError("Matrix nicht gültig")
+                raise Gauss.FormatError("Matrix nicht gültig")
 
     def gauss_solve(self):
         try:
@@ -86,7 +89,7 @@ def list_to_matrix(matrix_list: list[str]) -> list[list[float]]:
     matrix_str_list = deepcopy(matrix_list)
     for line in matrix_str_list:
         line = line.split("=")
-        multiplier = re.findall(r'([+-]?\d+\.?\d*)x', line[0])
+        multiplier = re.findall(r'([+-]?\d+\.?\d*)', line[0])
         multiplier = [float(m) for m in multiplier]
         solution = float(line[1])
 
