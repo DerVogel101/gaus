@@ -63,6 +63,8 @@ def main(page: Page):
         str_matrix = []
         # get the values from the input fields
         for entryin_element in entry_elements:
+            if "," in entryin_element.value:
+                entryin_element.value = entryin_element.value.replace(",", ".")
             str_matrix.append(entryin_element.value)
         matrix = list_to_matrix(str_matrix)
         # initialize Gauss object
@@ -90,7 +92,10 @@ def main(page: Page):
         matrix_result = gauss.get_result()
         matrix_result_str = ""
         for row in matrix_result:
-            matrix_result_str += f"{row} = {matrix_result[row]}\n"
+            matrix_result_str += f"{row} = {matrix_result[row][0]}\n"
+        matrix_result_str += "\n"
+        for row in matrix_result:
+            matrix_result_str += f"{row} = {matrix_result[row][1]}\n"
         input_elements["result"].value = matrix_result_str
         page.update(input_elements["result"])
 
@@ -102,7 +107,9 @@ def main(page: Page):
                               "submit": ElevatedButton(text="Weiter", on_click=conf_submit_click)}
     # Elements for the input Phase
     input_elements = {"title": Text("Gleichungssystem Eingabe", size=24),
-                      "tip": Text("Tipp: Die Einträge müssen wie folgt eingegeben werden:\n1+2=6\n2-1=2\n\n"
+                      "tip": Text("Tipp: Die Einträge müssen wie folgt eingegeben werden:\n1+2=6\n2-1=2\n"
+                                  "Es besteht die Möglichkeit ein Leerzeichen anstelle eines + zu benutzen\n"
+                                  "Es ist auch möglich Brüche zu benutzen\n\n"
                                   "Die variblen werden dann wie folgt zugewiesen:\n"
                                   "x, y, z, a, b, c, d ... w", size=16),
                       "clear": ElevatedButton(text="Löschen", on_click=input_clear_click),
@@ -122,7 +129,7 @@ def main(page: Page):
 
 
 if __name__ == '__main__':
-    web_app = False
+    web_app = True
     if web_app:
         app(target=main, view=AppView.WEB_BROWSER)
     else:

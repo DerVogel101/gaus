@@ -3,8 +3,9 @@
 # Date: 26.09.2023
 # Description: This is a Gauss algorithm that solves a system of linear equations for my Flutter app.
 
-from copy import deepcopy
+from copy import deepcopy, copy
 import re
+from fractions import Fraction
 
 
 class Gauss:
@@ -125,27 +126,61 @@ class Gauss:
         for index, line in enumerate(self.__matrix):
             print(f"{self.__variables[index]} = {line[-1]}")
 
-    def get_result(self) -> dict[str, float]:
+    def get_result(self) -> dict[str, tuple[float, Fraction]]:
         """
         Returns the result of the matrix
         :return: Result of the matrix
         """
         result = {}
         for index, line in enumerate(self.__matrix):
-            result[self.__variables[index]] = line[-1]
+            result[self.__variables[index]] = (line[-1], Fraction(line[-1]).limit_denominator())
         return result
 
 
 def list_to_matrix(matrix_list: list[str]) -> list[list[float]]:
     """
-    converts a list of lines to a matrix
+    Converts a list of lines to a matrix.
+
     :param matrix_list: input list like ["2+3=1", "4-1=11"]
     :return: output matrix like [[2, 3, 1], [4, -1, 11]]
+
+    Each line in `matrix_list` should represent an equation containing multipliers and a solution. The multipliers and the solution should be separated by an equals sign.
+
+    The function supports both integers, floats and fractions as multipliers. Multipliers can take positive or negative values and can contain decimal places. Fractions should be specified in the format "numerator/denominator".
     """
     output_matrix = []
     matrix_str_list = deepcopy(matrix_list)
     # convert matrix_str_list to float
     for line in matrix_str_list:
+        line = line.replace("+", " ")
+
+        if "/" in line:
+            # Find all fractions in the line
+            matches = re.finditer(
+                r'([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:Ee)?/([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:Ee)?', line)
+
+            # Initialize an empty list to hold the new line
+            new_line = []
+
+            # Initialize a variable to hold the last end index
+            last_end = 0
+
+            for match in matches:
+                # Add the text before the fraction to the new line
+                new_line.append(line[last_end:match.start()])
+
+                # Convert the fraction to a decimal and add it to the new line
+                new_line.append(str(float(Fraction(match.group()))))
+
+                # Update the last end index
+                last_end = match.end()
+
+            # Add any remaining text after the last fraction to the new line
+            new_line.append(line[last_end:])
+
+            # Join the new line into a string and return it
+            line = "".join(new_line)
+
         line = line.split("=")  # split line at "="
         # get multiplier and solution using regex
         multiplier = re.findall(r'([+-]?\d+\.?\d*)', line[0])
@@ -158,6 +193,9 @@ def list_to_matrix(matrix_list: list[str]) -> list[list[float]]:
 
 
 if __name__ == '__main__':
+    str_input = ["2-1=2", "1/1+2/1=6/1"]
+    matrix = list_to_matrix(str_input)
+    print("output: ", matrix)
     beispiele = {1: [[2, 3, 1, 1],
                      [4, -1, 3, 11],
                      [3, 1, -1, 0]],
